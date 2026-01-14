@@ -23,13 +23,17 @@ class TopNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final disabledColor = theme.disabledColor;
+
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: theme.scaffoldBackgroundColor,
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 0.5),
+          bottom: BorderSide(color: theme.dividerColor, width: 0.5),
         ),
       ),
       child: Row(
@@ -39,8 +43,9 @@ class TopNavigationBar extends StatelessWidget {
             icon: const Icon(CupertinoIcons.back),
             padding: EdgeInsets.zero,
             onPressed: onBack,
+            color: primaryColor,
           ),
-          Text(title, style: const TextStyle(color: Colors.blue)),
+          Text(title, style: TextStyle(color: primaryColor)),
 
           const Spacer(),
 
@@ -49,7 +54,7 @@ class TopNavigationBar extends StatelessWidget {
             icon: const Icon(CupertinoIcons.arrow_turn_up_left),
             padding: EdgeInsets.zero,
             onPressed: canUndo ? onUndo : null,
-            color: canUndo ? null : Colors.grey.withOpacity(0.3),
+            color: canUndo ? primaryColor : disabledColor,
           ),
 
           // Redo button (right)
@@ -57,7 +62,7 @@ class TopNavigationBar extends StatelessWidget {
             icon: const Icon(CupertinoIcons.arrow_turn_up_right),
             padding: EdgeInsets.zero,
             onPressed: canRedo ? onRedo : null,
-            color: canRedo ? null : Colors.grey.withOpacity(0.3),
+            color: canRedo ? primaryColor : disabledColor,
           ),
 
           // More menu (right)
@@ -65,6 +70,7 @@ class TopNavigationBar extends StatelessWidget {
             icon: const Icon(CupertinoIcons.ellipsis),
             padding: EdgeInsets.zero,
             onPressed: onMore,
+            color: primaryColor,
           ),
         ],
       ),

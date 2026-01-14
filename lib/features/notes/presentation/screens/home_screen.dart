@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../settings/presentation/screens/settings_screen.dart';
 import '../providers/notes_provider.dart';
 import 'note_editor_screen.dart';
 
@@ -18,6 +19,16 @@ class HomeScreen extends ConsumerWidget {
           'Notes',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
         backgroundColor: Colors.white,
         elevation: 0,
       ),

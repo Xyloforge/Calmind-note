@@ -77,7 +77,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             final json = jsonDecode(note.contentJson);
             _quillController.document = Document.fromJson(json);
           } catch (e) {
-            print('Error parsing delta: $e');
+            debugPrint('Error parsing delta: $e');
           }
         }
       });
@@ -141,7 +141,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             contentJson: contentJson,
           );
           ref.read(notesListProvider.notifier).updateNote(updatedNote);
-        } catch (e) {}
+        } catch (e) {
+          debugPrint('Error saving note: $e');
+        }
       });
     }
   }
@@ -178,12 +180,17 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: theme.colorScheme.primary),
+        ),
+      );
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -206,19 +213,19 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                     child: TextField(
                       controller: _titleController,
                       focusNode: _titleFocusNode,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Title',
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey,
+                          color: theme.textTheme.bodySmall?.color,
                         ),
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: theme.textTheme.bodyLarge?.color,
                       ),
                       maxLines: null,
                     ),
@@ -260,12 +267,22 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 onBulletList: () => _toggleFormat(Attribute.ul),
                 onIndent: () => _quillController.indentSelection(true),
                 onOutdent: () => _quillController.indentSelection(false),
+                onClosePanel: () => switchToolBarMode(ToolBarMode.editor),
 
                 isBoldActive: _isFormatActive(Attribute.bold),
                 isItalicActive: _isFormatActive(Attribute.italic),
                 isUnderlineActive: _isFormatActive(Attribute.underline),
                 isStrikeActive: _isFormatActive(Attribute.strikeThrough),
                 isMonoActive: _isFormatActive(Attribute.codeBlock),
+
+                isTitleActive: _isHeaderActive(Attribute.h1),
+                isHeadingActive: _isHeaderActive(Attribute.h2),
+                isSubheadingActive: _isHeaderActive(Attribute.h3),
+                isBodyActive: _isHeaderActive(Attribute.header),
+
+                isBulletListActive: _isFormatActive(Attribute.ul),
+                isNumberedListActive: _isFormatActive(Attribute.ol),
+                isDashedListActive: _isFormatActive(Attribute.ul),
               ),
           ],
         ),

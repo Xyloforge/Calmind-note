@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class FormattingToolbar extends StatelessWidget {
   final VoidCallback onFormatTap; // Aa button
@@ -19,9 +20,12 @@ class FormattingToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final toolbarColor = theme.appColors.toolbarBackground;
+
     return Container(
       height: 44,
-      color: const Color(0xFFF2F2F7), // iOS toolbar gray
+      color: toolbarColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -73,6 +77,10 @@ class _ToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
+    final disabledColor = theme.disabledColor;
+
     return GestureDetector(
       onTap: enabled ? onTap : null,
       behavior: HitTestBehavior.opaque,
@@ -86,13 +94,13 @@ class _ToolbarButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w500,
-                  color: enabled ? Colors.black : Colors.grey,
+                  color: enabled ? primaryColor : disabledColor,
                 ),
               )
             : Icon(
                 icon,
                 size: 24,
-                color: enabled ? Colors.black : Colors.grey.withOpacity(0.4),
+                color: enabled ? primaryColor : disabledColor,
               ),
       ),
     );
