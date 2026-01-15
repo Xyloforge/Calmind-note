@@ -83,11 +83,15 @@ class FormatPanel extends StatelessWidget {
                 _StyleButton(
                   label: 'Title',
                   onTap: onTitle,
-                  fontSize: 20,
+                  fontSize: 17,
                   isBold: true,
                   isActive: isTitleActive,
                 ),
-                const SizedBox(width: 8),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: Theme.of(context).dividerColor,
+                ),
                 _StyleButton(
                   label: 'Heading',
                   onTap: onHeading,
@@ -95,26 +99,38 @@ class FormatPanel extends StatelessWidget {
                   isBold: true,
                   isActive: isHeadingActive,
                 ),
-                const SizedBox(width: 8),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: Theme.of(context).dividerColor,
+                ),
                 _StyleButton(
                   label: 'Subhead',
                   onTap: onSubheading,
-                  fontSize: 15,
+                  fontSize: 17,
                   isBold: true,
                   isActive: isSubheadingActive,
                 ),
-                const SizedBox(width: 8),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: Theme.of(context).dividerColor,
+                ),
                 _StyleButton(
                   label: 'Body',
                   onTap: onBody,
-                  fontSize: 14,
+                  fontSize: 17,
                   isActive: isBodyActive,
                 ),
-                const SizedBox(width: 8),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: Theme.of(context).dividerColor,
+                ),
                 _StyleButton(
                   label: 'Mono',
                   onTap: onMonospace,
-                  fontSize: 13,
+                  fontSize: 17,
                   isMono: true,
                   isActive: isMonoActive,
                 ),
@@ -122,9 +138,9 @@ class FormatPanel extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+          Divider(height: 1, color: Theme.of(context).dividerColor),
+          const SizedBox(height: 8),
 
           // Row 2: Text Formatting
           Row(
@@ -162,9 +178,9 @@ class FormatPanel extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+          Divider(height: 1, color: Theme.of(context).dividerColor),
+          const SizedBox(height: 8),
 
           // Row 3: Lists
           Row(
@@ -229,11 +245,9 @@ class _StyleButton extends StatelessWidget {
 
     // Colors based on theme
     final activeColor = theme.colorScheme.primary;
-    final inactiveBackground = isDark ? const Color(0xFF2C2C2E) : Colors.white;
-    final inactiveBorder = isDark
-        ? const Color(0xFF48484A)
-        : Colors.grey.withAlpha(51);
-    final activeTextColor = Colors.white;
+    final inactiveBackground = theme.appColors.toolbarBackground;
+    final inactiveBorder = theme.colorScheme.secondary;
+    final activeTextColor = theme.colorScheme.surface;
     final inactiveTextColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
 
     return GestureDetector(
@@ -245,10 +259,8 @@ class _StyleButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? activeColor : inactiveBackground,
-          borderRadius: BorderRadius.circular(8),
-          border: isActive
-              ? Border.all(color: activeColor)
-              : Border.all(color: inactiveBorder),
+          borderRadius: isActive ? BorderRadius.circular(8) : null,
+          border: isActive ? Border.all(color: activeColor) : null,
           boxShadow: isActive || isDark
               ? []
               : [
@@ -297,12 +309,9 @@ class _FormatButton extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final activeColor = theme.colorScheme.primary;
-    final inactiveBackground = isDark ? const Color(0xFF2C2C2E) : Colors.white;
-    final inactiveBorder = isDark
-        ? const Color(0xFF48484A)
-        : Colors.grey.withAlpha(51);
-    final activeTextColor = Colors.white;
+    final background = theme.appColors.toolbarBackground;
+    final inactiveBorder = theme.appColors.toolbarBackground;
+    final activeTextColor = theme.colorScheme.primary;
     final inactiveTextColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
 
     return GestureDetector(
@@ -315,11 +324,9 @@ class _FormatButton extends StatelessWidget {
         height: 44,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isActive ? activeColor : inactiveBackground,
+          color: background,
           borderRadius: BorderRadius.circular(8),
-          border: isActive
-              ? Border.all(color: activeColor)
-              : Border.all(color: inactiveBorder),
+          border: Border.all(color: inactiveBorder),
           boxShadow: isActive || isDark
               ? []
               : [
@@ -370,12 +377,9 @@ class _ListButton extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final activeColor = theme.colorScheme.primary;
-    final inactiveBackground = isDark ? const Color(0xFF2C2C2E) : Colors.white;
-    final inactiveBorder = isDark
-        ? const Color(0xFF48484A)
-        : Colors.grey.withAlpha(51);
-    final activeContentColor = Colors.white;
+    final background = theme.appColors.toolbarBackground;
+    final inactiveBorder = theme.appColors.toolbarBackground;
+    final activeContentColor = theme.colorScheme.primary;
     final inactiveContentColor =
         theme.textTheme.bodyLarge?.color ?? Colors.black;
 
@@ -389,11 +393,9 @@ class _ListButton extends StatelessWidget {
         height: 44,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isActive ? activeColor : inactiveBackground,
+          color: background,
           borderRadius: BorderRadius.circular(8),
-          border: isActive
-              ? Border.all(color: activeColor)
-              : Border.all(color: inactiveBorder),
+          border: Border.all(color: inactiveBorder),
           boxShadow: isActive || isDark
               ? []
               : [

@@ -214,7 +214,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                       controller: _titleController,
                       focusNode: _titleFocusNode,
                       decoration: InputDecoration(
-                        hintText: 'Title',
+                        hintText: '',
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontSize: 24,

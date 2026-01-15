@@ -9,7 +9,7 @@ enum AppAccentColor {
   pink('Pink', Colors.pink),
   red('Red', Colors.red),
   teal('Teal', Colors.teal),
-  yellow('Yellow', Colors.yellow);
+  yellow('SunGlow', Color(0xFFFFD52E));
 
   const AppAccentColor(this.label, this.color);
   final String label;
@@ -17,11 +17,7 @@ enum AppAccentColor {
 }
 
 class AppTheme {
-  static const _lightFillColor = Colors.black;
-  static const _darkFillColor = Colors.white;
-
   static final Color _lightFocusColor = Colors.black.withOpacity(0.12);
-  static final Color _darkFocusColor = Colors.white.withOpacity(0.12);
 
   static ThemeData lightTheme(AppAccentColor accent) {
     return ThemeData(
@@ -49,8 +45,8 @@ class AppTheme {
       cupertinoOverrideTheme: CupertinoThemeData(
         primaryColor: accent.color,
         barBackgroundColor: Colors.white,
-        textTheme: CupertinoTextThemeData(
-          navTitleTextStyle: const TextStyle(
+        textTheme: const CupertinoTextThemeData(
+          navTitleTextStyle: TextStyle(
             color: Colors.black,
             fontSize: 17,
             fontWeight: FontWeight.w600,
@@ -66,45 +62,68 @@ class AppTheme {
   }
 
   static ThemeData darkTheme(AppAccentColor accent) {
+    // Standard iOS Gray for secondary text/icons
+    const Color iosSecondaryGray = Color(0xFF8E8E93);
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: accent.color,
-        brightness: Brightness.dark,
-        background: Colors.black, // True dark
-      ),
-      scaffoldBackgroundColor: const Color(0xFF000000), // True dark
+      scaffoldBackgroundColor: Colors.black, // Pure Black
       primaryColor: accent.color,
-      focusColor: _darkFocusColor,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(
-          0xFF1C1C1E,
-        ), // iOS Dark grouped background variant or just black
+
+      // Manual ColorScheme to prevent "auto-mixing" tints
+      colorScheme: ColorScheme.dark(
+        primary: accent.color,
+        surface: Colors.black,
+        onSurface: Colors.white,
+        secondary: iosSecondaryGray,
+      ),
+
+      // Global Icon Theme (Sets all icons to your accent color)
+      iconTheme: IconThemeData(color: accent.color),
+
+      // Text Theme: White for primary, Gray for secondary
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: Colors.white), // Primary text
+        bodyMedium: TextStyle(color: Colors.white), // Secondary text
+        bodySmall: TextStyle(
+          color: Color.fromARGB(255, 210, 208, 208),
+        ), // Tertiary text
+        titleLarge: TextStyle(color: Colors.white),
+      ),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: accent.color, // AppBar is full accent color
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(
+        centerTitle: true,
+        // Icons inside AppBar are usually white for contrast against the accent background
+        iconTheme: const IconThemeData(color: Colors.white),
+        actionsIconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 17,
           fontWeight: FontWeight.w600,
         ),
       ),
+
       cupertinoOverrideTheme: CupertinoThemeData(
         primaryColor: accent.color,
-        barBackgroundColor: const Color(0xFF1C1C1E),
-        textTheme: CupertinoTextThemeData(
-          navTitleTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-          ),
+        barBackgroundColor: accent.color,
+        scaffoldBackgroundColor: Colors.black,
+        textTheme: const CupertinoTextThemeData(
+          primaryColor: Colors.white,
           textStyle: TextStyle(
             color: Colors.white,
             fontFamily: 'SF Pro Display',
           ),
+          navTitleTextStyle: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      dividerColor: const Color(0xFF38383A),
+
+      dividerColor: const Color(0xFF38383A), // Apple style divider
     );
   }
 }
@@ -120,8 +139,8 @@ extension AppThemeExtension on ThemeData {
     final isDark = brightness == Brightness.dark;
     return AppColors(
       toolbarBackground: isDark
-          ? const Color(0xFF1C1C1E)
-          : const Color(0xFFF9F9F9),
+          ? const Color.fromARGB(255, 0, 0, 0)
+          : const Color.fromARGB(255, 255, 255, 255),
     );
   }
 }

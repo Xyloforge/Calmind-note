@@ -78,7 +78,7 @@ class _ToolbarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
+    final primaryColor = theme.colorScheme.primary;
     final disabledColor = theme.disabledColor;
 
     return GestureDetector(
