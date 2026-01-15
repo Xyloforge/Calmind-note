@@ -158,7 +158,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     final selectionStyle = _quillController.getSelectionStyle();
     final currentAttr = selectionStyle.attributes[attribute.key];
 
-    if (currentAttr != null) {
+    if (currentAttr != null && currentAttr.value == attribute.value) {
       // Remove format
       _quillController.formatSelection(Attribute.clone(attribute, null));
     } else {
@@ -169,7 +169,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   bool _isFormatActive(Attribute attribute) {
     final style = _quillController.getSelectionStyle();
-    return style.attributes.containsKey(attribute.key);
+    return style.attributes.containsKey(attribute.key) &&
+        style.attributes[attribute.key]!.value == attribute.value;
   }
 
   bool _isHeaderActive(Attribute header) {
