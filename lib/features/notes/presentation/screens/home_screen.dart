@@ -238,7 +238,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             MaterialPageRoute(builder: (context) => const NoteEditorScreen()),
           );
         },
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: theme.colorScheme.surface),
       ),
     );
   }
