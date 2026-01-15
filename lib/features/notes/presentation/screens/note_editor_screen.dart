@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../providers/notes_provider.dart';
 import '../widgets/formatting_toolbar.dart';
@@ -148,6 +151,25 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null && mounted) {
+      final index = _quillController.selection.baseOffset;
+      final length = _quillController.selection.extentOffset - index;
+
+      _quillController.replaceText(
+        index,
+        length,
+        BlockEmbed.image(image.path),
+        null,
+      );
+
+      _save();
+    }
+  }
+
   void switchToolBarMode(ToolBarMode mode) {
     setState(() {
       _toolBarMode = mode;
@@ -192,6 +214,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     }
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -215,7 +238,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                       controller: _titleController,
                       focusNode: _titleFocusNode,
                       decoration: InputDecoration(
-                        hintText: '',
+                        hintText: 'Title',
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontSize: 24,
@@ -228,7 +251,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         fontWeight: FontWeight.bold,
                         color: theme.textTheme.bodyLarge?.color,
                       ),
-                      maxLines: null,
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) {
+                        _editorFocusNode.requestFocus();
+                      },
                     ),
                   ),
                   Expanded(
@@ -237,6 +264,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                       child: QuillEditor.basic(
                         controller: _quillController,
                         focusNode: _editorFocusNode,
+                        config: QuillEditorConfig(
+                          embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                        ),
                       ),
                     ),
                   ),
@@ -247,7 +277,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               FormattingToolbar(
                 onFormatTap: () => switchToolBarMode(ToolBarMode.format),
                 onChecklistTap: () => _toggleFormat(Attribute.unchecked),
-                onAttachTap: () {},
+                onAttachTap: _pickImage,
               )
             else if (_toolBarMode == ToolBarMode.format)
               FormatPanel(
