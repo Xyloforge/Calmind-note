@@ -12,7 +12,9 @@ import '../widgets/formatting_toolbar.dart';
 import '../widgets/top_navigation_bar.dart';
 import '../widgets/format_panel.dart';
 
-enum ToolBarMode { editor, format }
+import '../widgets/list_format_panel.dart';
+
+enum ToolBarMode { editor, format, list }
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
   final String? noteId;
@@ -57,7 +59,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   void _onFocusChange() {
     if ((_editorFocusNode.hasFocus || _titleFocusNode.hasFocus) &&
-        _toolBarMode == ToolBarMode.format) {
+        (_toolBarMode == ToolBarMode.format ||
+            _toolBarMode == ToolBarMode.list)) {
       setState(() {
         _toolBarMode = ToolBarMode.editor;
       });
@@ -170,6 +173,30 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     }
   }
 
+  void _insertHorizontalRule() {
+    final index = _quillController.selection.baseOffset;
+    final length = _quillController.selection.extentOffset - index;
+
+    // 1. Insert a newline first if cursor is not at start of line
+    if (index > 0) {
+      _quillController.replaceText(index, 0, '\n', null);
+    }
+
+    // 2. Insert the divider embed
+    _quillController.replaceText(
+      index + 1,
+      length,
+      const BlockEmbed('divider', 'hr'),
+      null,
+    );
+
+    // 3. Insert a newline after the divider so next text is on a new line
+    _quillController.replaceText(index + 2, 0, '\n', null);
+
+    // Move cursor after the newline
+    _quillController.moveCursorToPosition(index + 3);
+  }
+
   void switchToolBarMode(ToolBarMode mode) {
     setState(() {
       _toolBarMode = mode;
@@ -204,6 +231,12 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Check if keyboard is visible
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    // Check if editor has focus
+    final isEditorFocused = _editorFocusNode.hasFocus;
+
+    final shouldShowToolbar = isKeyboardVisible && isEditorFocused;
 
     if (_isLoading) {
       return Scaffold(
@@ -265,7 +298,10 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         controller: _quillController,
                         focusNode: _editorFocusNode,
                         config: QuillEditorConfig(
-                          embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                          embedBuilders: [
+                            ...FlutterQuillEmbeds.editorBuilders(),
+                            const DividerEmbedBuilder(),
+                          ],
                         ),
                       ),
                     ),
@@ -273,51 +309,77 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 ],
               ),
             ),
-            if (_toolBarMode == ToolBarMode.editor)
-              FormattingToolbar(
-                onFormatTap: () => switchToolBarMode(ToolBarMode.format),
-                onChecklistTap: () => _toggleFormat(Attribute.unchecked),
-                onAttachTap: _pickImage,
-              )
-            else if (_toolBarMode == ToolBarMode.format)
-              FormatPanel(
-                onTitle: () => _quillController.formatSelection(Attribute.h1),
-                onHeading: () => _quillController.formatSelection(Attribute.h2),
-                onSubheading: () =>
-                    _quillController.formatSelection(Attribute.h3),
-                onBody: () => _quillController.formatSelection(
-                  Attribute.header,
-                ), // Clear header
-                onMonospace: () => _toggleFormat(Attribute.codeBlock),
-                onBold: () => _toggleFormat(Attribute.bold),
-                onItalic: () => _toggleFormat(Attribute.italic),
-                onUnderline: () => _toggleFormat(Attribute.underline),
-                onStrikethrough: () => _toggleFormat(Attribute.strikeThrough),
-                onDashedList: () => _toggleFormat(Attribute.ul),
-                onNumberedList: () => _toggleFormat(Attribute.ol),
-                onBulletList: () => _toggleFormat(Attribute.ul),
-                onIndent: () => _quillController.indentSelection(true),
-                onOutdent: () => _quillController.indentSelection(false),
-                onClosePanel: () => switchToolBarMode(ToolBarMode.editor),
+            if (shouldShowToolbar) ...[
+              if (_toolBarMode == ToolBarMode.editor)
+                FormattingToolbar(
+                  onFormatTap: () => switchToolBarMode(ToolBarMode.format),
+                  onChecklistTap: () => _toggleFormat(Attribute.unchecked),
+                  onListTap: () => switchToolBarMode(ToolBarMode.list),
+                  onAttachTap: _pickImage,
+                )
+              else if (_toolBarMode == ToolBarMode.format)
+                FormatPanel(
+                  onTitle: () => _quillController.formatSelection(Attribute.h1),
+                  onHeading: () =>
+                      _quillController.formatSelection(Attribute.h2),
+                  onSubheading: () =>
+                      _quillController.formatSelection(Attribute.h3),
+                  onBody: () => _quillController.formatSelection(
+                    Attribute.header,
+                  ), // Clear header
+                  onMonospace: () => _toggleFormat(Attribute.codeBlock),
+                  onBold: () => _toggleFormat(Attribute.bold),
+                  onItalic: () => _toggleFormat(Attribute.italic),
+                  onUnderline: () => _toggleFormat(Attribute.underline),
+                  onStrikethrough: () => _toggleFormat(Attribute.strikeThrough),
+                  onClosePanel: () => switchToolBarMode(ToolBarMode.editor),
 
-                isBoldActive: _isFormatActive(Attribute.bold),
-                isItalicActive: _isFormatActive(Attribute.italic),
-                isUnderlineActive: _isFormatActive(Attribute.underline),
-                isStrikeActive: _isFormatActive(Attribute.strikeThrough),
-                isMonoActive: _isFormatActive(Attribute.codeBlock),
+                  isBoldActive: _isFormatActive(Attribute.bold),
+                  isItalicActive: _isFormatActive(Attribute.italic),
+                  isUnderlineActive: _isFormatActive(Attribute.underline),
+                  isStrikeActive: _isFormatActive(Attribute.strikeThrough),
+                  isMonoActive: _isFormatActive(Attribute.codeBlock),
 
-                isTitleActive: _isHeaderActive(Attribute.h1),
-                isHeadingActive: _isHeaderActive(Attribute.h2),
-                isSubheadingActive: _isHeaderActive(Attribute.h3),
-                isBodyActive: _isHeaderActive(Attribute.header),
-
-                isBulletListActive: _isFormatActive(Attribute.ul),
-                isNumberedListActive: _isFormatActive(Attribute.ol),
-                isDashedListActive: _isFormatActive(Attribute.ul),
-              ),
+                  isTitleActive: _isHeaderActive(Attribute.h1),
+                  isHeadingActive: _isHeaderActive(Attribute.h2),
+                  isSubheadingActive: _isHeaderActive(Attribute.h3),
+                  isBodyActive: _isHeaderActive(Attribute.header),
+                )
+              else if (_toolBarMode == ToolBarMode.list)
+                ListFormatPanel(
+                  onDashedList: () => _toggleFormat(Attribute.ul),
+                  onNumberedList: () => _toggleFormat(Attribute.ol),
+                  onBulletList: () =>
+                      _toggleFormat(Attribute.ul), // Reusing UL for bullet
+                  onSeparator: _insertHorizontalRule,
+                  onIndent: () => _quillController.indentSelection(true),
+                  onOutdent: () => _quillController.indentSelection(false),
+                  onClosePanel: () => switchToolBarMode(ToolBarMode.editor),
+                  isDashedListActive: _isFormatActive(Attribute.ul),
+                  isNumberedListActive: _isFormatActive(Attribute.ol),
+                  isBulletListActive: _isFormatActive(
+                    Attribute.ul,
+                  ), // Reusing UL
+                ),
+            ],
           ],
         ),
       ),
+    );
+  }
+}
+
+class DividerEmbedBuilder extends EmbedBuilder {
+  const DividerEmbedBuilder();
+
+  @override
+  String get key => 'divider';
+
+  @override
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 12),
+      child: Divider(height: 1, thickness: 1),
     );
   }
 }

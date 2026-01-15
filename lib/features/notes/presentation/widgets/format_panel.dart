@@ -12,11 +12,6 @@ class FormatPanel extends StatelessWidget {
   final VoidCallback onItalic;
   final VoidCallback onUnderline;
   final VoidCallback onStrikethrough;
-  final VoidCallback onDashedList;
-  final VoidCallback onNumberedList;
-  final VoidCallback onBulletList;
-  final VoidCallback onIndent;
-  final VoidCallback onOutdent;
   final VoidCallback onClosePanel;
 
   final bool isTitleActive;
@@ -28,9 +23,6 @@ class FormatPanel extends StatelessWidget {
   final bool isItalicActive;
   final bool isUnderlineActive;
   final bool isStrikeActive;
-  final bool isDashedListActive;
-  final bool isNumberedListActive;
-  final bool isBulletListActive;
 
   const FormatPanel({
     super.key,
@@ -44,20 +36,12 @@ class FormatPanel extends StatelessWidget {
     required this.onItalic,
     required this.onUnderline,
     required this.onStrikethrough,
-    required this.onDashedList,
-    required this.onNumberedList,
-    required this.onBulletList,
-    required this.onIndent,
-    required this.onOutdent,
     required this.isBodyActive,
     required this.isMonoActive,
     required this.isBoldActive,
     required this.isItalicActive,
     required this.isUnderlineActive,
     required this.isStrikeActive,
-    required this.isDashedListActive,
-    required this.isNumberedListActive,
-    required this.isBulletListActive,
     required this.isTitleActive,
     required this.isHeadingActive,
     required this.isSubheadingActive,
@@ -175,47 +159,6 @@ class FormatPanel extends StatelessWidget {
               ),
               const SizedBox(width: 34),
               _FormatButton(label: 'X', onTap: onClosePanel),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-          Divider(height: 1, color: Theme.of(context).dividerColor),
-          const SizedBox(height: 8),
-
-          // Row 3: Lists
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _ListButton(
-                icon: CupertinoIcons.minus,
-                onTap: onDashedList,
-                isActive: isDashedListActive,
-              ),
-              const SizedBox(width: 8),
-              _ListButton(
-                label: '1.',
-                onTap: onNumberedList,
-                isActive: isNumberedListActive,
-              ),
-              const SizedBox(width: 8),
-              _ListButton(
-                icon: CupertinoIcons.circle_fill,
-                onTap: onBulletList,
-                iconSize: 8,
-                isActive: isBulletListActive,
-              ),
-              const SizedBox(width: 8),
-              _ListButton(
-                icon: CupertinoIcons.arrow_left_to_line,
-                onTap: onOutdent,
-                isActive: false,
-              ),
-              const SizedBox(width: 8),
-              _ListButton(
-                icon: CupertinoIcons.arrow_right_to_line,
-                onTap: onIndent,
-                isActive: false,
-              ),
             ],
           ),
         ],
@@ -355,74 +298,6 @@ class _FormatButton extends StatelessWidget {
             decorationColor: isActive ? activeTextColor : inactiveTextColor,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ListButton extends StatelessWidget {
-  final IconData? icon;
-  final String? label;
-  final VoidCallback onTap;
-  final double? iconSize;
-  final bool isActive;
-
-  const _ListButton({
-    this.icon,
-    this.label,
-    required this.onTap,
-    this.iconSize,
-    this.isActive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    final background = theme.appColors.toolbarBackground;
-    final inactiveBorder = theme.appColors.toolbarBackground;
-    final activeContentColor = theme.colorScheme.primary;
-    final inactiveContentColor =
-        theme.textTheme.bodyLarge?.color ?? Colors.black;
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: inactiveBorder),
-          boxShadow: isActive || isDark
-              ? []
-              : [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-        ),
-        child: icon != null
-            ? Icon(
-                icon,
-                size: iconSize ?? 24,
-                color: isActive ? activeContentColor : inactiveContentColor,
-              )
-            : Text(
-                label ?? '',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500,
-                  color: isActive ? activeContentColor : inactiveContentColor,
-                ),
-              ),
       ),
     );
   }

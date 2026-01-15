@@ -6,7 +6,7 @@ class FormattingToolbar extends StatelessWidget {
   final VoidCallback onFormatTap; // Aa button
   final VoidCallback onChecklistTap; // Checklist button
   final VoidCallback onAttachTap; // Attach button
-  final VoidCallback? onAudioTap; // Audio (optional, Phase 2)
+  final VoidCallback onListTap; // List button
   final VoidCallback? onDrawTap; // Draw (optional, Phase 2)
 
   const FormattingToolbar({
@@ -14,7 +14,7 @@ class FormattingToolbar extends StatelessWidget {
     required this.onFormatTap,
     required this.onChecklistTap,
     required this.onAttachTap,
-    this.onAudioTap,
+    required this.onListTap,
     this.onDrawTap,
   });
 
@@ -38,15 +38,11 @@ class FormattingToolbar extends StatelessWidget {
             onTap: onChecklistTap,
           ),
 
+          // List button
+          _ToolbarButton(icon: CupertinoIcons.list_bullet, onTap: onListTap),
+
           // Attach button
           _ToolbarButton(icon: CupertinoIcons.paperclip, onTap: onAttachTap),
-
-          // Audio button (disabled in MVP)
-          _ToolbarButton(
-            icon: CupertinoIcons.mic,
-            onTap: onAudioTap,
-            enabled: onAudioTap != null,
-          ),
 
           // Draw button (disabled in MVP)
           _ToolbarButton(
