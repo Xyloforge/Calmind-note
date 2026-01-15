@@ -27,9 +27,7 @@ class NoteEditorScreen extends ConsumerStatefulWidget {
 
 class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   late final QuillController _quillController;
-  late final TextEditingController _titleController;
   final FocusNode _editorFocusNode = FocusNode();
-  final FocusNode _titleFocusNode = FocusNode();
 
   String? _currentNoteId;
   Timer? _debounceTimer;
@@ -40,16 +38,25 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   void initState() {
     super.initState();
     _currentNoteId = widget.noteId;
-    _titleController = TextEditingController();
-    _quillController = QuillController.basic();
 
-    _loadNote();
+    if (_currentNoteId == null) {
+      final doc = Document();
+      // Apply H1 to the first line (paragraph) by formatting the newline character
+      doc.format(0, 1, Attribute.h1);
+      _quillController = QuillController(
+        document: doc,
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+      _isLoading = false; // New notes don't need async loading
+    } else {
+      _quillController = QuillController.basic();
+      _loadNote();
+    }
 
-    // Listen to controller changes to update Undo/Redo state
+    // Listen to controller changes to update Undo/Redo state and save
     _quillController.addListener(_onEditorChange);
     // Listen to focus changes to hide format panel when typing
     _editorFocusNode.addListener(_onFocusChange);
-    _titleFocusNode.addListener(_onFocusChange);
   }
 
   void _onEditorChange() {
@@ -58,7 +65,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   }
 
   void _onFocusChange() {
-    if ((_editorFocusNode.hasFocus || _titleFocusNode.hasFocus) &&
+    if (_editorFocusNode.hasFocus &&
         (_toolBarMode == ToolBarMode.format ||
             _toolBarMode == ToolBarMode.list)) {
       setState(() {
@@ -76,15 +83,25 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           orElse: () => throw Exception('Note not found'),
         );
 
-        _titleController.text = note.title;
-
         if (note.contentJson.isNotEmpty) {
           try {
             final json = jsonDecode(note.contentJson);
-            _quillController.document = Document.fromJson(json);
+            final doc = Document.fromJson(json);
+
+            // Check if title extraction logic is needed for migration
+            // If the document is plain text or doesn't look like it has a title H1,
+            // we could choose to insert it. For now, we trust the saved content
+            // but ensure we update valid title on save.
+            _quillController.document = doc;
           } catch (e) {
             debugPrint('Error parsing delta: $e');
           }
+        } else {
+          // Fallback for empty content but existing note (shouldn't happen often)
+          final doc = Document();
+          doc.insert(0, note.title + '\n');
+          doc.format(0, 1, Attribute.h1);
+          _quillController.document = doc;
         }
       });
     }
@@ -92,8 +109,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     setState(() {
       _isLoading = false;
     });
-
-    _titleController.addListener(_onChanged);
   }
 
   @override
@@ -101,12 +116,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     _debounceTimer?.cancel();
     _quillController.removeListener(_onEditorChange);
     _editorFocusNode.removeListener(_onFocusChange);
-    _titleFocusNode.removeListener(_onFocusChange);
 
-    _titleController.dispose();
     _quillController.dispose();
     _editorFocusNode.dispose();
-    _titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -118,20 +130,21 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   Future<void> _save() async {
     if (!mounted) return;
 
-    final title = _titleController.text;
+    final plainText = _quillController.document.toPlainText().trim();
+    final title = plainText.split('\n').firstOrNull ?? 'Untitled';
+
     final contentJson = jsonEncode(
       _quillController.document.toDelta().toJson(),
     );
 
     if (_currentNoteId == null) {
-      if (title.isEmpty &&
-          _quillController.document.toPlainText().trim().isEmpty) {
+      if (plainText.isEmpty) {
         return;
       }
 
       final newId = await ref
           .read(notesListProvider.notifier)
-          .addNote(title, contentJson);
+          .addNote(title.isEmpty ? 'Untitled' : title, contentJson);
       if (mounted) {
         setState(() {
           _currentNoteId = newId;
@@ -143,7 +156,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         try {
           final existingNote = notes.firstWhere((n) => n.id == _currentNoteId);
           final updatedNote = existingNote.copyWith(
-            title: title,
+            title: title.isEmpty ? 'Untitled' : title,
             contentJson: contentJson,
           );
           ref.read(notesListProvider.notifier).updateNote(updatedNote);
@@ -265,32 +278,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             Expanded(
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: TextField(
-                      controller: _titleController,
-                      focusNode: _titleFocusNode,
-                      decoration: InputDecoration(
-                        hintText: 'Title',
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: theme.textTheme.bodySmall?.color,
-                        ),
-                      ),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: theme.textTheme.bodyLarge?.color,
-                      ),
-                      maxLines: 1,
-                      textInputAction: TextInputAction.next,
-                      onSubmitted: (_) {
-                        _editorFocusNode.requestFocus();
-                      },
-                    ),
-                  ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),

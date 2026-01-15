@@ -95,13 +95,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   String _getPreview(String jsonContent) {
     if (jsonContent.isEmpty) return 'No additional text';
+
     try {
       final json = jsonDecode(jsonContent);
       final doc = quill.Document.fromJson(json);
-      final plainText = doc.toPlainText().trim();
-      return plainText.isEmpty
+      final lines = doc.toPlainText().split('\n');
+      if (lines.length <= 1) return 'No additional text';
+      final contentWithoutTitle = lines.sublist(1).join(' ').trim();
+      return contentWithoutTitle.isEmpty
           ? 'No additional text'
-          : plainText.replaceAll('\n', ' ');
+          : contentWithoutTitle;
     } catch (e) {
       return 'Note content';
     }
@@ -137,7 +140,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: theme.primaryColor,
                   fontWeight: FontWeight.bold,
                 ),
-                title: Text('Notes'),
+                title: const Text('Notes'),
                 actions: [
                   IconButton(
                     icon: Icon(Icons.settings, color: theme.primaryColor),
