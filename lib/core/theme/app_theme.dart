@@ -110,8 +110,8 @@ class AppTheme {
         primaryColor: accent.color,
         barBackgroundColor: accent.color,
         scaffoldBackgroundColor: Colors.black,
-        textTheme: const CupertinoTextThemeData(
-          primaryColor: Colors.white,
+        textTheme: CupertinoTextThemeData(
+          primaryColor: accent.color,
           textStyle: TextStyle(
             color: Colors.white,
             fontFamily: 'SF Pro Display',

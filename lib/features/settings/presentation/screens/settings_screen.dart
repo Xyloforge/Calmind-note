@@ -12,9 +12,14 @@ class SettingsScreen extends StatelessWidget {
     // Use CupertinoPageScaffold for the authentic iOS feel
     // since we wrapped the whole app in Material, we can nest Cupertino scaffolds.
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Settings'),
-        backgroundColor: null, // Transparent/Blur effect by default
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(
+          'Settings',
+
+          style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+        ),
+
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         border: null, // Clean look
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
