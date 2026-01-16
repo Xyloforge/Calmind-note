@@ -3,7 +3,6 @@ package com.example.vnote2
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -84,9 +83,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun sendSwapNoteEvent() {
-        Log.d("MainActivity", "Sending swap note event for widget ID: $configWidgetId")
         if (configWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
-        Log.d("MainActivity", "SENTTTTT")
         configWidgetId?.let { widgetId ->
             channel?.invokeMethod("swapNote", mapOf("widgetId" to widgetId))
             configWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID

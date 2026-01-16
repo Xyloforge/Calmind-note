@@ -17,8 +17,6 @@ class WidgetNavigationService {
 
   /// Handle method calls from native side
   Future<void> _handleMethodCall(MethodCall call) async {
-    debugPrint('WidgetNavigationService: ${call.method}');
-
     switch (call.method) {
       case 'openNote':
         final noteId = call.arguments['noteId'] as String?;
@@ -27,10 +25,8 @@ class WidgetNavigationService {
         }
         break;
       case 'swapNote':
-        debugPrint('Swapping note for widget: ${call.arguments['widgetId']}');
         final widgetId = call.arguments['widgetId'] as int?;
         if (widgetId != null && widgetId != 0) {
-          debugPrint('Swapping note for widget: $widgetId');
           await swapNote(widgetId);
         }
         break;
@@ -53,8 +49,6 @@ class WidgetNavigationService {
 
   /// Open a note by ID
   Future<void> openNote(String noteId) async {
-    debugPrint('Opening note: $noteId');
-
     final context = navigatorKey.currentContext;
     if (context == null) {
       debugPrint('No navigation context available');
@@ -72,10 +66,8 @@ class WidgetNavigationService {
 
   /// Swap note for widget
   Future<void> swapNote(int widgetId) async {
-    debugPrint('Swapping note for widget: $widgetId');
     final context = navigatorKey.currentContext;
     if (context == null) {
-      debugPrint('No navigation context available');
       return;
     }
     navigatorKey.currentState?.push(

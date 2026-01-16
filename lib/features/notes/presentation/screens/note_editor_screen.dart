@@ -30,7 +30,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   void initState() {
     super.initState();
     _currentNoteId = widget.noteId;
-    debugPrint('Initing Note id: ${_currentNoteId}');
   }
 
   @override
