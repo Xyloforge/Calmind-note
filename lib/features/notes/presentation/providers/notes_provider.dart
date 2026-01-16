@@ -1,59 +1,62 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/database/database_service.dart';
 import '../../data/repositories/notes_repository.dart';
 import '../../domain/models/note_model.dart';
 
-final notesRepositoryProvider = Provider<NotesRepository>((ref) {
-  return NotesRepository(DatabaseService());
-});
+part 'notes_provider.g.dart';
 
-final notesListProvider =
-    StateNotifierProvider<NotesListNotifier, AsyncValue<List<Note>>>((ref) {
-      final repository = ref.read(notesRepositoryProvider);
-      return NotesListNotifier(repository);
-    });
+@riverpod
+NotesRepository notesRepository(NotesRepositoryRef ref) =>
+    NotesRepository(DatabaseService());
 
-class NotesListNotifier extends StateNotifier<AsyncValue<List<Note>>> {
-  final NotesRepository _repository;
-
-  NotesListNotifier(this._repository) : super(const AsyncValue.loading()) {
-    loadNotes();
+@riverpod
+class NotesList extends _$NotesList {
+  @override
+  Future<List<Note>> build() async {
+    return ref.watch(notesRepositoryProvider).getNotes();
   }
 
-  Future<void> loadNotes() async {
-    try {
-      final notes = await _repository.getNotes();
-      state = AsyncValue.data(notes);
-    } catch (e, st) {
-      debugPrint(e.toString());
-      state = AsyncValue.error(e, st);
-    }
+  // Helper to find a note in the current state
+  Note? getNoteById(String id) {
+    return state.valueOrNull?.firstWhere((n) => n.id == id);
   }
 
   Future<String> addNote(String title, String contentJson) async {
     final id = const Uuid().v4();
-    final note = Note(
+    final newNote = Note(
       id: id,
       title: title,
       contentJson: contentJson,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    await _repository.saveNote(note);
-    await loadNotes();
+
+    state = await AsyncValue.guard(() async {
+      await ref.read(notesRepositoryProvider).saveNote(newNote);
+      final previousState = await future;
+      return [...previousState, newNote];
+    });
     return id;
   }
 
   Future<void> updateNote(Note note) async {
-    final updatedNote = note.copyWith(updatedAt: DateTime.now());
-    await _repository.saveNote(updatedNote);
-    await loadNotes();
+    state = await AsyncValue.guard(() async {
+      final updatedNote = note.copyWith(updatedAt: DateTime.now());
+      await ref.read(notesRepositoryProvider).saveNote(updatedNote);
+      final previousState = await future;
+      return [
+        for (final n in previousState)
+          if (n.id == note.id) updatedNote else n,
+      ];
+    });
   }
 
   Future<void> deleteNote(String id) async {
-    await _repository.deleteNote(id);
-    await loadNotes();
+    state = await AsyncValue.guard(() async {
+      await ref.read(notesRepositoryProvider).deleteNote(id);
+      final previousState = await future;
+      return previousState.where((n) => n.id != id).toList();
+    });
   }
 }

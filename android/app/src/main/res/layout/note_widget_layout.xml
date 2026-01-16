@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:background="@drawable/widget_background">
+    
+    <ListView
+        android:id="@+id/widget_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@null"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="outsideOverlay"
+        android:paddingBottom="100dp"
+        android:clipToPadding="false" />
+    
+    <!-- Bottom Right Buttons Container - VERTICAL -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:orientation="vertical"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center">
+        
+        <!-- Change Target Button (Top) -->
+        <ImageButton
+            android:id="@+id/button_change_target"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginBottom="8dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/fab_background"
+            android:src="@drawable/ic_swap"
+            android:contentDescription="Change Target" />
+        
+        <!-- Edit Note Button (Bottom) -->
+        <ImageButton
+            android:id="@+id/button_edit_note"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/fab_background"
+            android:src="@drawable/ic_edit"
+            android:contentDescription="Edit Note" />
+            
+    </LinearLayout>
+        
+</FrameLayout>

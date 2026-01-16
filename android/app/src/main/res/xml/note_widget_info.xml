@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.example.vnote2.MainActivity"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/note_widget_layout"
+    android:minWidth="180dp"
+    android:minHeight="180dp"
+    android:minResizeWidth="120dp"
+    android:minResizeHeight="120dp"
+    android:maxResizeWidth="10000dp"
+    android:maxResizeHeight="10000dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="3"
+    android:previewLayout="@layout/note_widget_layout"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

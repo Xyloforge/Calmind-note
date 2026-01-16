@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@drawable/widget_background">
+
+    <ImageButton
+        android:id="@+id/button_change_target"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/fab_background"
+        android:src="@drawable/ic_swap"
+        android:contentDescription="Change Target" />
+
+    <ImageButton
+        android:id="@+id/button_edit_note"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/fab_background"
+        android:src="@drawable/ic_edit"
+        android:contentDescription="Edit Note" />
+
+    <ImageButton
+        android:id="@+id/button_close"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/fab_background"
+        android:src="@drawable/ic_close"
+        android:contentDescription="Close" />
+</LinearLayout>
