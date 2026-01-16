@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vnote2/core/enums/pref_keys.dart';
+import 'package:vnote2/features/notes/presentation/screens/home_screen.dart';
 import 'package:vnote2/features/notes/presentation/screens/note_editor_screen.dart';
-import 'package:vnote2/features/notes/presentation/screens/widget_config_screen.dart';
 import 'package:vnote2/features/notes/services/home_widget_navigation.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'features/notes/presentation/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +39,35 @@ class _CalmindAppState extends ConsumerState<CalmindApp>
     WidgetsBinding.instance.addObserver(this);
 
     _widgetNavService = WidgetNavigationService(navigatorKey);
-    _widgetNavService.initialize();
+    _startUp();
+  }
+
+  void _startUp() async {
+    // open widget note
+    if (await _widgetNavService.checkAndOpenWidgetNavigation()) return;
+
+    // open last screen
+    final prefs = await SharedPreferences.getInstance();
+    final lastScreen = prefs.getString(LastScreenKeys.screen);
+
+    if (lastScreen == LastScreenKeys.note) {
+      final noteId = prefs.getString(LastScreenKeys.noteId);
+      if (noteId != null) {
+        _replace(NoteEditorScreen(noteId: noteId));
+        return;
+      }
+    }
+
+    // default
+    _replace(const HomeScreen());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed &&
+        await _widgetNavService.checkAndOpenWidgetNavigation())
+      return;
   }
 
   @override
@@ -49,14 +76,11 @@ class _CalmindAppState extends ConsumerState<CalmindApp>
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    // When app resumes, check for pending intents
-    if (state == AppLifecycleState.resumed) {
-      _widgetNavService.checkForPendingIntent();
-    }
+  void _replace(Widget screen) {
+    Navigator.of(navigatorKey.currentContext!).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => screen),
+      (_) => false,
+    );
   }
 
   @override
@@ -72,7 +96,7 @@ class _CalmindAppState extends ConsumerState<CalmindApp>
       themeMode: themeState.themeMode,
       theme: AppTheme.lightTheme(themeState.accentColor),
       darkTheme: AppTheme.darkTheme(themeState.accentColor),
-      home: const HomeScreen(),
+      home: const Scaffold(backgroundColor: Colors.black, body: Center()),
     );
   }
 }

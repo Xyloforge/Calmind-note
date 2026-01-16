@@ -61,33 +61,12 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
-
-        sendOpenNoteEvent()
-        sendSwapNoteEvent()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleWidgetIntent(intent)
-
-        sendSwapNoteEvent()
-        sendOpenNoteEvent()
-    }
-
-    private fun sendOpenNoteEvent() {
-        openNoteId?.let { noteId ->
-            channel?.invokeMethod("openNote", mapOf("noteId" to noteId))
-            openNoteId = null
-        }
-    }
-
-    private fun sendSwapNoteEvent() {
-        if (configWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
-        configWidgetId?.let { widgetId ->
-            channel?.invokeMethod("swapNote", mapOf("widgetId" to widgetId))
-            configWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-        }
     }
 
     private fun handleWidgetIntent(intent: Intent?) {

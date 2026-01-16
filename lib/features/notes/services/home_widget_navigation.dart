@@ -10,41 +10,22 @@ class WidgetNavigationService {
 
   WidgetNavigationService(this.navigatorKey);
 
-  /// Initialize the service and set up handlers
-  void initialize() {
-    platform.setMethodCallHandler(_handleMethodCall);
-  }
-
-  /// Handle method calls from native side
-  Future<void> _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'openNote':
-        final noteId = call.arguments['noteId'] as String?;
-        if (noteId != null && noteId.isNotEmpty) {
-          await openNote(noteId);
-        }
-        break;
-      case 'swapNote':
-        final widgetId = call.arguments['widgetId'] as int?;
-        if (widgetId != null && widgetId != 0) {
-          await swapNote(widgetId);
-        }
-        break;
-      default:
-        debugPrint('Unknown method: ${call.method}');
+  Future<bool> checkAndOpenWidgetNavigation() async {
+    final noteId = await getOpenNoteId();
+    debugPrint("noteId: $noteId");
+    if (noteId != null && noteId.isNotEmpty) {
+      await openNote(noteId);
+      return true;
     }
-  }
 
-  /// Check for pending intents (call when app resumes)
-  Future<void> checkForPendingIntent() async {
-    try {
-      final noteId = await platform.invokeMethod<String>('getOpenNoteId');
-      if (noteId != null && noteId.isNotEmpty) {
-        await openNote(noteId);
-      }
-    } catch (e) {
-      debugPrint('Error checking for pending intent: $e');
+    final widgetId = await getConfigWidgetId();
+    debugPrint("widgetId: $widgetId");
+    if (widgetId != null && widgetId != 0) {
+      swapNote(widgetId);
+      return true;
     }
+
+    return false;
   }
 
   /// Open a note by ID
@@ -55,12 +36,9 @@ class WidgetNavigationService {
       return;
     }
 
-    // Pop to root
-    navigatorKey.currentState?.popUntil((route) => route.isFirst);
-
-    // Navigate to note
-    navigatorKey.currentState?.push(
+    navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => NoteEditorScreen(noteId: noteId)),
+      (_) => false,
     );
   }
 
@@ -70,10 +48,11 @@ class WidgetNavigationService {
     if (context == null) {
       return;
     }
-    navigatorKey.currentState?.push(
+    navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => WidgetConfigScreen(widgetId: widgetId),
       ),
+      (_) => false,
     );
   }
 

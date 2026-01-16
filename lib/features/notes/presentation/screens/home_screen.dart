@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vnote2/core/enums/pref_keys.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../domain/models/note_model.dart';
 import '../providers/notes_provider.dart';
@@ -23,11 +25,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _markHomeAsLastScreen();
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.trim().toLowerCase();
       });
     });
+  }
+
+  Future<void> _markHomeAsLastScreen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(LastScreenKeys.screen, LastScreenKeys.home);
+    await prefs.remove(LastScreenKeys.noteId);
   }
 
   @override

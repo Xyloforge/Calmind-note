@@ -5,6 +5,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vnote2/features/notes/presentation/screens/home_screen.dart';
 
 import '../widgets/formatting_toolbar.dart';
 import '../widgets/top_navigation_bar.dart';
@@ -189,7 +190,10 @@ class _MyQuillEditorState extends ConsumerState<MyQuillEditor> {
             children: [
               TopNavigationBar(
                 title: '', // Title is in the content area
-                onBack: () => Navigator.of(context).pop(),
+                onBack: () => Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (_) => false,
+                ),
                 onUndo: () => widget.quillController.undo(),
                 onRedo: () => widget.quillController.redo(),
                 onMore: () {

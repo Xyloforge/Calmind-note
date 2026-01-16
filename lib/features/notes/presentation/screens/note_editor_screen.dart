@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vnote2/core/enums/pref_keys.dart';
 import 'package:vnote2/features/notes/domain/models/note_model.dart';
 import 'package:vnote2/features/notes/presentation/widgets/quill_editor.dart';
 
@@ -30,12 +32,21 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   void initState() {
     super.initState();
     _currentNoteId = widget.noteId;
+    if (_currentNoteId != null) {
+      _markAsLastScreen(_currentNoteId!);
+    }
   }
 
   @override
   void dispose() {
     _quillController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _markAsLastScreen(String noteId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(LastScreenKeys.screen, LastScreenKeys.note);
+    await prefs.setString(LastScreenKeys.noteId, noteId);
   }
 
   Future<void> _save() async {
@@ -57,6 +68,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           .read(notesListProvider.notifier)
           .addNote(title.isEmpty ? 'Untitled' : title, contentJson);
       if (mounted) {
+        _markAsLastScreen(newId);
         setState(() {
           _currentNoteId = newId;
         });
