@@ -190,10 +190,19 @@ class _MyQuillEditorState extends ConsumerState<MyQuillEditor> {
             children: [
               TopNavigationBar(
                 title: '', // Title is in the content area
-                onBack: () => Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  (_) => false,
-                ),
+                onBack: () {
+                  if (Navigator.of(context).canPop()) {
+                    // If there's a screen behind us (Folder or All Notes), just go back
+                    Navigator.of(context).pop();
+                  } else {
+                    // If we opened the app from a Widget/Notification and there's no "back",
+                    // go to Home and clear everything else.
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      (route) => false,
+                    );
+                  }
+                },
                 onUndo: () => widget.quillController.undo(),
                 onRedo: () => widget.quillController.redo(),
                 onMore: () {

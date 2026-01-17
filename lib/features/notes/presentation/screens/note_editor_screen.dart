@@ -17,8 +17,9 @@ enum ToolBarMode { editor, format, list }
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
   final String? noteId;
+  final String? folderId;
 
-  const NoteEditorScreen({super.key, this.noteId});
+  const NoteEditorScreen({super.key, this.noteId, this.folderId});
 
   @override
   ConsumerState<NoteEditorScreen> createState() => _NoteEditorScreenState();
@@ -66,7 +67,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
       final newId = await ref
           .read(notesListProvider.notifier)
-          .addNote(title.isEmpty ? 'Untitled' : title, contentJson);
+          .addNote(
+            title.isEmpty ? 'Untitled' : title,
+            contentJson,
+            folderId: widget.folderId,
+          );
       if (mounted) {
         _markAsLastScreen(newId);
         setState(() {

@@ -66,14 +66,14 @@ class _WidgetConfigScreenState extends ConsumerState<WidgetConfigScreen> {
     final notesState = ref.watch(notesListProvider);
     final theme = Theme.of(context);
 
-    return WillPopScope(
+    return PopScope(
       // Prevent back button during configuration
-      onWillPop: () async => !_isProcessing,
+      canPop: !_isProcessing,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
             'Select Note for Widget',
-            style: TextStyle(color: theme.textTheme.titleLarge?.color),
+            style: TextStyle(color: theme.primaryColor),
           ),
           backgroundColor: theme.scaffoldBackgroundColor,
           elevation: 0,

@@ -22,7 +22,11 @@ class NotesList extends _$NotesList {
     return state.valueOrNull?.firstWhere((n) => n.id == id);
   }
 
-  Future<String> addNote(String title, String contentJson) async {
+  Future<String> addNote(
+    String title,
+    String contentJson, {
+    String? folderId,
+  }) async {
     final id = const Uuid().v4();
     final newNote = Note(
       id: id,
@@ -30,6 +34,7 @@ class NotesList extends _$NotesList {
       contentJson: contentJson,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      folderId: folderId,
     );
 
     state = await AsyncValue.guard(() async {
@@ -59,4 +64,25 @@ class NotesList extends _$NotesList {
       return previousState.where((n) => n.id != id).toList();
     });
   }
+
+  Future<void> moveNote(String noteId, String? newFolderId) async {
+    final note = getNoteById(noteId);
+    if (note == null) return;
+
+    final updatedNote = note.copyWith(folderId: newFolderId);
+    await updateNote(updatedNote);
+  }
+}
+
+@riverpod
+List<Note> filteredNotes(FilteredNotesRef ref, String? folderId) {
+  final notesAsync = ref.watch(notesListProvider);
+  return notesAsync.when(
+    data: (notes) {
+      if (folderId == null) return notes;
+      return notes.where((n) => n.folderId == folderId).toList();
+    },
+    error: (_, __) => [],
+    loading: () => [],
+  );
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -9,10 +10,14 @@ import 'package:vnote2/core/enums/pref_keys.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../domain/models/note_model.dart';
 import '../providers/notes_provider.dart';
+import 'folder_list_screen.dart';
 import 'note_editor_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+  final String? folderId;
+  final String? folderName;
+
+  const HomeScreen({super.key, this.folderId, this.folderName});
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -51,10 +56,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final grouped = <String, List<Note>>{};
 
     final filtered = notes.where((note) {
-      if (_searchQuery.isEmpty) return true;
-      final content = _getPreview(note.contentJson).toLowerCase();
-      return note.title.toLowerCase().contains(_searchQuery) ||
-          content.contains(_searchQuery);
+      // 1. Filter by Search Query
+      if (_searchQuery.isNotEmpty) {
+        final content = _getPreview(note.contentJson).toLowerCase();
+        final matchesSearch =
+            note.title.toLowerCase().contains(_searchQuery) ||
+            content.contains(_searchQuery);
+        if (!matchesSearch) return false;
+      }
+
+      // 2. Filter by Folder
+      // If folderId is provided, note.folderId must match it.
+      // If folderId is null (All Notes), show all notes?
+      // Requirement: "All Notes" shows everything.
+      // Requirement: "Notes store a folderId? null = All Notes" -> Wait,
+      // "null = All Notes" usually means "Uncategorized".
+      // But "All Notes" view shows EVERYTHING (categorized or not).
+      // And "Uncategorized" isn't a folder in the list?
+      // Re-reading requirements:
+      // "Notes store a folderId? null = All Notes" (This phrasing is slightly ambiguous).
+      // "Folder deletion: Notes inside return to All Notes" -> Implies folderId becomes null.
+      // "Folder List Screen: 'All Notes' always at the top".
+      // "Notes List Screen: Shows notes filtered by selected folder. 'All Notes' shows everything."
+      // So:
+      // - widget.folderId == null => Show ALL notes (ignore note.folderId).
+      // - widget.folderId == 'someId' => Show notes where note.folderId == 'someId'.
+
+      if (widget.folderId != null) {
+        return note.folderId == widget.folderId;
+      }
+
+      return true;
     }).toList();
 
     filtered.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -141,15 +173,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 backgroundColor: backgroundColor,
                 surfaceTintColor: Colors.transparent,
                 expandedHeight: 120,
+                iconTheme: IconThemeData(color: theme.primaryColor),
                 collapsedHeight: 80,
                 floating: false,
                 pinned: true,
+                leading: widget.folderId == null
+                    ? IconButton(
+                        icon: Icon(
+                          CupertinoIcons.folder,
+                          color: theme.primaryColor,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const FolderListScreen(),
+                            ),
+                          );
+                        },
+                      )
+                    : null, // Default Back button for folders
                 titleTextStyle: TextStyle(
                   fontSize: 22,
                   color: theme.primaryColor,
                   fontWeight: FontWeight.bold,
                 ),
-                title: const Text('Notes'),
+                title: Text(widget.folderName ?? 'Notes'),
                 actions: [
                   IconButton(
                     icon: Icon(Icons.settings, color: theme.primaryColor),
@@ -240,14 +288,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: theme.primaryColor,
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const NoteEditorScreen()),
-          );
-        },
-        child: Icon(Icons.add, color: theme.colorScheme.surface),
+      extendBody: true,
+      bottomNavigationBar: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom,
+              top: 10,
+              left: 20,
+              right: 20,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.2), // Subtle tint
+              border: Border(
+                top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 0.5,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Right Side: Create Note
+                IconButton(
+                  icon: Icon(
+                    Icons.edit_note,
+                    size: 32,
+                    color: theme.primaryColor,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NoteEditorScreen(folderId: widget.folderId),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

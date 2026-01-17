@@ -24,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE notes (
@@ -37,6 +37,24 @@ class DatabaseService {
             is_pinned INTEGER DEFAULT 0
           )
         ''');
+        await db.execute('''
+          CREATE TABLE folders (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL UNIQUE,
+            created_at INTEGER NOT NULL
+          )
+        ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+            CREATE TABLE folders (
+              id TEXT PRIMARY KEY,
+              name TEXT NOT NULL UNIQUE,
+              created_at INTEGER NOT NULL
+            )
+          ''');
+        }
       },
     );
   }
