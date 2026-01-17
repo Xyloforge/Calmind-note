@@ -141,13 +141,17 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
       },
       loading: () {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Center(
             child: CircularProgressIndicator(color: theme.colorScheme.primary),
           ),
         );
       },
       error: (error, stackTrace) {
-        return Scaffold(body: Center(child: Text(error.toString())));
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Center(child: Text(error.toString())),
+        );
       },
     );
   }

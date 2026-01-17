@@ -44,6 +44,7 @@ class _FolderListScreenState extends ConsumerState<FolderListScreen> {
     final backgroundColor = theme.scaffoldBackgroundColor;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       backgroundColor: backgroundColor,
       body: foldersAsync.when(
@@ -165,55 +166,57 @@ class _FolderListScreenState extends ConsumerState<FolderListScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
-      bottomNavigationBar: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom,
-              top: 10,
-              left: 20,
-              right: 20,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.2), // Subtle tint
-              border: Border(
-                top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 0.5,
+      bottomNavigationBar: RepaintBoundary(
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom,
+                top: 10,
+                left: 20,
+                right: 20,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.2), // Subtle tint
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 0.5,
+                  ),
                 ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Left Side: Create Folder
-                IconButton(
-                  icon: Icon(
-                    Icons.create_new_folder_outlined,
-                    size: 28,
-                    color: theme.primaryColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left Side: Create Folder
+                  IconButton(
+                    icon: Icon(
+                      Icons.create_new_folder_outlined,
+                      size: 28,
+                      color: theme.primaryColor,
+                    ),
+                    onPressed: () {
+                      _showFolderDialog(context, ref, null, null);
+                    },
                   ),
-                  onPressed: () {
-                    _showFolderDialog(context, ref, null, null);
-                  },
-                ),
-                // Right Side: Create Note
-                IconButton(
-                  icon: Icon(
-                    Icons.edit_note,
-                    size: 32,
-                    color: theme.primaryColor,
+                  // Right Side: Create Note
+                  IconButton(
+                    icon: Icon(
+                      Icons.edit_note,
+                      size: 32,
+                      color: theme.primaryColor,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const NoteEditorScreen(),
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const NoteEditorScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

@@ -12,14 +12,12 @@ class WidgetNavigationService {
 
   Future<bool> checkAndOpenWidgetNavigation() async {
     final noteId = await getOpenNoteId();
-    debugPrint("noteId: $noteId");
     if (noteId != null && noteId.isNotEmpty) {
       await openNote(noteId);
       return true;
     }
 
     final widgetId = await getConfigWidgetId();
-    debugPrint("widgetId: $widgetId");
     if (widgetId != null && widgetId != 0) {
       swapNote(widgetId);
       return true;

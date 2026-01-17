@@ -96,7 +96,11 @@ class _CalmindAppState extends ConsumerState<CalmindApp>
       themeMode: themeState.themeMode,
       theme: AppTheme.lightTheme(themeState.accentColor),
       darkTheme: AppTheme.darkTheme(themeState.accentColor),
-      home: const Scaffold(backgroundColor: Colors.black, body: Center()),
+      home: const Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.black,
+        body: Center(),
+      ),
     );
   }
 }

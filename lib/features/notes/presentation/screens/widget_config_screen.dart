@@ -70,6 +70,7 @@ class _WidgetConfigScreenState extends ConsumerState<WidgetConfigScreen> {
       // Prevent back button during configuration
       canPop: !_isProcessing,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(
             'Select Note for Widget',

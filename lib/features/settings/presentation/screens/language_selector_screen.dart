@@ -41,6 +41,7 @@ class _LanguageSelectorScreenState extends State<LanguageSelectorScreen> {
     final primaryColor = theme.primaryColor;
 
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: backgroundColor,
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Language'),

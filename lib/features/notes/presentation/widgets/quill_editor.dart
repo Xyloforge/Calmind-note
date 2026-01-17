@@ -184,6 +184,7 @@ class _MyQuillEditorState extends ConsumerState<MyQuillEditor> {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(

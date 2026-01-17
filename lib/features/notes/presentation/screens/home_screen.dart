@@ -161,6 +161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final backgroundColor = theme.scaffoldBackgroundColor;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: backgroundColor,
       body: notesAsync.when(
         data: (notes) {
@@ -289,45 +290,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       extendBody: true,
-      bottomNavigationBar: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom,
-              top: 10,
-              left: 20,
-              right: 20,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.2), // Subtle tint
-              border: Border(
-                top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 0.5,
+      bottomNavigationBar: RepaintBoundary(
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom,
+                top: 10,
+                left: 20,
+                right: 20,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.2), // Subtle tint
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 0.5,
+                  ),
                 ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // Right Side: Create Note
-                IconButton(
-                  icon: Icon(
-                    Icons.edit_note,
-                    size: 32,
-                    color: theme.primaryColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Right Side: Create Note
+                  IconButton(
+                    icon: Icon(
+                      Icons.edit_note,
+                      size: 32,
+                      color: theme.primaryColor,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              NoteEditorScreen(folderId: widget.folderId),
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            NoteEditorScreen(folderId: widget.folderId),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

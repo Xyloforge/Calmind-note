@@ -12,6 +12,7 @@ class SettingsScreen extends StatelessWidget {
     // Use CupertinoPageScaffold for the authentic iOS feel
     // since we wrapped the whole app in Material, we can nest Cupertino scaffolds.
     return CupertinoPageScaffold(
+      resizeToAvoidBottomInset: false,
       navigationBar: CupertinoNavigationBar(
         middle: Text(
           'Settings',
